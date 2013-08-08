@@ -10,13 +10,13 @@ BEGIN
   DROP TABLE IF EXISTS TRANS;
 
   CREATE TABLE TRANS(trans_id             VARCHAR(10000),
-                     amount	              DECIMAL(13,2),
+                     amount	          DECIMAL(13,2),
                      trans_date           DATE,
                      payee_id             VARCHAR(10000),
-					 account_id           VARCHAR(10000),
-				     trans_type           VARCHAR(60),
+                     account_id           VARCHAR(10000),
+		     trans_type           VARCHAR(60),
                      event_id             VARCHAR(10000),
-				     trans_ext_id         VARCHAR(10000));
+                     trans_ext_id         VARCHAR(10000));
 
   DROP TABLE IF EXISTS PAYEE;
 
@@ -36,7 +36,7 @@ BEGIN
                        account_name       VARCHAR(60),
                        account_type       VARCHAR(60),
                        balance            DECIMAL(13,2),
-					   apr                DECIMAL(13,2),
+	               apr                DECIMAL(13,2),
                        ext_id             VARCHAR(10000));
 
   DROP TABLE IF EXISTS PROJ_TRANS;
