@@ -52,7 +52,7 @@ BEGIN
   DROP TABLE IF EXISTS SP_EVENT;
 
   CREATE TABLE SP_EVENT(event_id          VARCHAR(10000),
-						event_name        VARCHAR(60),
+		        event_name        VARCHAR(60),
                         event_date        DATE);
                    
 END
