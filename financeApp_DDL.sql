@@ -1,6 +1,5 @@
 -- --------------------------------------------------------------------------------
--- Routine DDL
--- Note: comments before and after the routine body will not be stored by the server
+-- Installs FinanceApp operational tables
 -- --------------------------------------------------------------------------------
 DELIMITER $$
 
