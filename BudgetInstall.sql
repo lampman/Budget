@@ -33,6 +33,11 @@ CREATE TABLE USBANK_CHECK_INPUT(trans_date    VARCHAR(255),
 						        trans_name    VARCHAR(255),
 						        trans_memo    VARCHAR(255),   
                                 trans_amount  VARCHAR(255));
+CREATE TABLE USBANK_SAVE_INPUT(trans_date    VARCHAR(255),
+							   trans_type    VARCHAR(255),
+						       trans_name    VARCHAR(255),
+							   trans_memo    VARCHAR(255),   
+                               trans_amount  VARCHAR(255));
 CREATE TABLE USBANK_MEGAN_INPUT(trans_date    VARCHAR(255),
 						        trans_type    VARCHAR(255),
 						        trans_name    VARCHAR(255),
