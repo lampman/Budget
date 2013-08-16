@@ -29,7 +29,7 @@ CREATE TABLE TRANS (
     trans_date DATE NOT NULL,
     payee_id INT(11) NOT NULL,
     account_id INT(11) NOT NULL,
-    trans_type VARCHAR(60) NOT NULL,
+    trans_type VARCHAR(60),
     event_id INT(11)
 );
 CREATE TABLE PROJ_TRANS (
@@ -39,7 +39,8 @@ CREATE TABLE PROJ_TRANS (
     payee_id INT(11),
     account_id INT(11),
     trans_type VARCHAR(60),
-    event_id INT(11)
+    event_id INT(11),
+    posted_ind VARCHAR(60)
 );
 CREATE TABLE USBANK_CHECK_INPUT (
     trans_date VARCHAR(255),
@@ -47,40 +48,65 @@ CREATE TABLE USBANK_CHECK_INPUT (
     trans_name VARCHAR(255),
     trans_memo VARCHAR(255),
     trans_amount VARCHAR(255),
-    event_id INT(11)
+    event_id INT(11),
+    payee_id INT(11),
+    account_id INT(11)
 );
+INSERT INTO ACCOUNT(account_name, account_type)
+VALUES('USBANK Checking','Checking');
+COMMIT;
 CREATE TABLE USBANK_SAVE_INPUT (
     trans_date VARCHAR(255),
     trans_type VARCHAR(255),
     trans_name VARCHAR(255),
     trans_memo VARCHAR(255),
     trans_amount VARCHAR(255),
-    event_id INT(11)
+    event_id INT(11),
+    payee_id INT(11),
+    account_id INT(11)
 );
+INSERT INTO ACCOUNT(account_name, account_type)
+VALUES('USBANK Savings','Savings');
+COMMIT;
 CREATE TABLE USBANK_MEGAN_INPUT (
     trans_date VARCHAR(255),
     trans_type VARCHAR(255),
     trans_name VARCHAR(255),
     trans_memo VARCHAR(255),
     trans_amount VARCHAR(255),
-    event_id INT(11)
+    event_id INT(11),
+    payee_id INT(11),
+    account_id INT(11)
 );
+INSERT INTO ACCOUNT(account_name, account_type)
+VALUES('USBANK Megan','Credit Card');
+COMMIT;
 CREATE TABLE USBANK_BROCK_INPUT (
     trans_date VARCHAR(255),
     trans_type VARCHAR(255),
     trans_name VARCHAR(255),
     trans_memo VARCHAR(255),
     trans_amount VARCHAR(255),
-    event_id INT(11)
+    event_id INT(11),
+    payee_id INT(11),
+    account_id INT(11)
 );
+INSERT INTO ACCOUNT(account_name, account_type)
+VALUES('USBANK Brock','Credit Card');
+COMMIT;
 CREATE TABLE CHASE_INPUT (
     trans_type VARCHAR(255),
     swipe_date VARCHAR(255),
     trans_date VARCHAR(255),
     trans_memo VARCHAR(255),
     trans_amount VARCHAR(255),
-    event_id INT(11)
+    event_id INT(11),
+    payee_id INT(11),
+    account_id INT(11)
 );
+INSERT INTO ACCOUNT(account_name, account_type)
+VALUES('Chase','Credit Card');
+COMMIT;
 CREATE TABLE CAP_ONE_INPUT (
     trans_date VARCHAR(255),
     card_number VARCHAR(255),
@@ -88,8 +114,13 @@ CREATE TABLE CAP_ONE_INPUT (
     trans_debit VARCHAR(255),
     trans_credit VARCHAR(255),
     trans_amount VARCHAR(255),
-    event_id INT(11)
+    event_id INT(11),
+    payee_id INT(11),
+    account_id INT(11)
 );
+INSERT INTO ACCOUNT(account_name, account_type)
+VALUES('Capital One','Credit Card');
+COMMIT;
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE SP_EVENT_maint(p_operation     VARCHAR(60),
 													       p_event_id      INT(11),
@@ -170,16 +201,18 @@ BEGIN
 END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE PAYEE_maint(p_operation     VARCHAR(60),
 												        p_payee_id      INT(11),
+                                                        p_payee_memo_name VARCHAR(255),
 														p_payee_name    VARCHAR(60),
                                                         p_category_id   INT(11))
 BEGIN
   CASE
     WHEN p_operation = "INSERT" THEN
-      INSERT INTO BUDGET.PAYEE(payee_name, category_id) VALUES(p_payee_name, p_category_id);
+      INSERT INTO BUDGET.PAYEE(payee_memo_name, payee_name, category_id) VALUES(p_payee_memo_name,p_payee_name, p_category_id);
       COMMIT;
     WHEN p_operation = "UPDATE" THEN
       UPDATE BUDGET.PAYEE t1
-      SET t1.payee_name  = IFNULL(p_payee_name, t1.payee_name),
+      SET t1.payee_memo_name  = IFNULL(p_payee_memo_name, t1.payee_memo_name),
+          t1.payee_name  = IFNULL(p_payee_name, t1.payee_name),
           t1.category_id = IFNULL(p_category_id, t1.category_id)
       WHERE p_payee_id = t1.payee_id;
       COMMIT;
@@ -231,13 +264,14 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE PROJ_TRANS_maint(p_operation     VAR
                                                              p_payee_id      INT(11),
                                                              p_account_id    INT(11),
                                                              p_trans_type    VARCHAR(60),
-                                                             p_event_id      INT(11))
+                                                             p_event_id      INT(11),
+															 p_posted_ind    VARCHAR(60))
 BEGIN
   CASE
     WHEN p_operation = "INSERT" THEN
       INSERT INTO BUDGET.PROJ_TRANS(amount, trans_date, payee_id,
-                                    account_id, trans_type, event_id) 
-      VALUES(p_amount, p_trans_date, p_payee_id, p_account_id, p_trans_type, p_event_id);
+                                    account_id, trans_type, event_id,posted_ind) 
+      VALUES(p_amount, p_trans_date, p_payee_id, p_account_id, p_trans_type, p_event_id, p_posted_ind);
       COMMIT;
     WHEN p_operation = "UPDATE" THEN
       UPDATE BUDGET.PROJ_TRANS t1
@@ -246,7 +280,8 @@ BEGIN
           t1.payee_id    = IFNULL(p_payee_id, t1.payee_id),
 		  t1.account_id	 = IFNULL(p_account_id,t1.account_id),
           t1.trans_type  = IFNULL(p_trans_type, t1.trans_type),
-          t1.event_id    = IFNULL(p_event_id, t1.event_id)
+          t1.event_id    = IFNULL(p_event_id, t1.event_id),
+		  t1.posted_ind  = IFNULL(p_posted_ind, t1.posted_ind)
       WHERE p_trans_id = t1.trans_id;
       COMMIT;
     WHEN p_operation = "DELETE" THEN
